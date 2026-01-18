@@ -1,0 +1,13 @@
+/* Add an internal scrollbar for the per-level breakdown so the page doesn't grow uncontrollably.
+   Tweak max-height to taste (55vh is a reasonable default). */
+
+.breakdown{
+  list-style:none;
+  padding:0;
+  margin:8px 0 0;
+  max-height:55vh;     /* limit height so the list scrolls within itself */
+  overflow:auto;       /* show internal scrollbar when needed */
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  padding-right:8px;   /* prevent content from being obscured by scrollbar */
+}
