@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>XP Calculator</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="container">
+    <h1>XP Calculator</h1>
+    <p class="lead">Calculate how much XP is required to level up. Per-level formula: 3.44883 · l^1.70006</p>
+
+    <form id="xpForm" class="card" autocomplete="off">
+      <div class="row">
+        <label for="currentLevel">Current level</label>
+        <input id="currentLevel" name="currentLevel" type="number" min="1" value="30" required>
+      </div>
+
+      <div class="row toggle-row">
+        <label>
+          <input id="modeTo" type="radio" name="mode" value="to" checked>
+          To level
+        </label>
+        <label>
+          <input id="modeBy" type="radio" name="mode" value="by">
+          By levels
+        </label>
+        <label>
+          <input id="modeXp" type="radio" name="mode" value="xp">
+          By XP
+        </label>
+      </div>
+
+      <div class="row" id="toLevelRow">
+        <label for="targetLevel">Target level</label>
+        <input id="targetLevel" name="targetLevel" type="number" min="1" value="35">
+      </div>
+
+      <div class="row hidden" id="byLevelsRow">
+        <label for="levelsUp">Levels up (N)</label>
+        <input id="levelsUp" name="levelsUp" type="number" min="1" value="5">
+      </div>
+
+      <div class="row hidden" id="byXpRow">
+        <label for="xpAmount">XP to add</label>
+        <input id="xpAmount" name="xpAmount" type="number" min="0" step="1" value="100000" aria-describedby="xpHelp">
+        <div id="xpHelp" class="muted" style="font-size:0.9rem; margin-top:6px;">Enter a raw XP amount (e.g. 5000000).</div>
+      </div>
+
+      <div class="row actions">
+        <button id="calculateBtn" type="submit">Calculate XP</button>
+        <button id="resetBtn" type="button" class="secondary">Reset</button>
+      </div>
+    </form>
+
+    <section id="results" class="card hidden" aria-live="polite">
+      <h2>Result</h2>
+      <p id="summary" class="summary"></p>
+      <p id="note" class="muted" aria-hidden="true"></p>
+
+      <details id="detailsBlock">
+        <summary id="detailsSummary">Show per-level breakdown</summary>
+        <ul id="breakdown" class="breakdown" aria-label="Per-level breakdown"></ul>
+      </details>
+
+      <div class="result-actions">
+        <button id="topBtn" type="button" class="secondary">Back to top</button>
+      </div>
+    </section>
+
+    <footer class="muted">
+      Formulas used:
+      <ul>
+        <li>Per-level: 3.44883 · l^1.70006</li>
+        <li>Between levels (closed form): 3.44883 · (l2^2.70006 − l1^2.70006) / 2.70006</li>
+        <li>Inverse (level after adding XP): l2 = ( l1^2.70006 + (XP · 2.70006) / 3.44883 )^(1 / 2.70006)</li>
+      </ul>
+    </footer>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
