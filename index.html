@@ -1,85 +1,211 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>XP Calculator</title>
-  <link rel="stylesheet" href="styles.css">
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .row { margin-bottom: 12px; }
+    label { display: block; font-weight: bold; margin-bottom: 4px; }
+    input { padding: 6px; width: 100%; max-width: 320px; }
+    .hidden { display: none; }
+    .summary { margin-top: 12px; font-weight: bold; }
+    button { padding: 8px 14px; margin-top: 10px; }
+    hr { margin: 20px 0; }
+  </style>
 </head>
 <body>
-  <main class="container">
-    <h1>XP Calculator</h1>
-    <p class="lead">Calculate how much XP is required to level up.</p>
 
-    <form id="xpForm" class="card" autocomplete="off">
-      <div class="row">
-        <label for="currentLevel">Current level</label>
-        <input id="currentLevel" name="currentLevel" type="number" min="1" value="30" required>
-      </div>
+<h1>XP Calculator</h1>
 
-      <div class="row toggle-row">
-        <label>
-          <input id="modeTo" type="radio" name="mode" value="to" checked>
-          To level
-        </label>
-        <label>
-          <input id="modeBy" type="radio" name="mode" value="by">
-          By levels
-        </label>
-        <label>
-          <input id="modeXp" type="radio" name="mode" value="xp">
-          By XP
-        </label>
-      </div>
+<form id="xpForm">
 
-      <div class="row" id="toLevelRow">
-        <label for="targetLevel">Target level</label>
-        <input id="targetLevel" name="targetLevel" type="number" min="1" value="35">
-      </div>
+  <!-- Mode selection -->
 
-      <div class="row hidden" id="byLevelsRow">
-        <label for="levelsUp">Levels up (N)</label>
-        <input id="levelsUp" name="levelsUp" type="number" min="1" value="5">
-      </div>
+  <div class="row">
+    <label><input type="radio" name="mode" id="modeTo" checked /> To Level</label>
+    <label><input type="radio" name="mode" id="modeBy" /> By Levels</label>
+    <label><input type="radio" name="mode" id="modeXp" /> By XP</label>
+    <label><input type="radio" name="mode" id="modeMoney" /> By Money</label>
+  </div>
 
-      <div class="row hidden" id="byXpRow">
-        <label for="xpAmount">XP to add</label>
-        <input id="xpAmount" name="xpAmount" type="number" min="0" step="1" value="100000" aria-describedby="xpHelp">
-        <div id="xpHelp" class="muted" style="font-size:0.9rem; margin-top:6px;">Enter a raw XP amount (e.g. 5000000).</div>
-      </div>
+  <!-- Current level -->
 
-      <div class="row actions">
-        <button id="calculateBtn" type="submit">Calculate XP</button>
-        <button id="resetBtn" type="button" class="secondary">Reset</button>
-      </div>
-    </form>
+  <div class="row">
+    <label for="currentLevel">Current Level</label>
+    <input id="currentLevel" type="number" min="1" value="1" />
+  </div>
 
-    <section id="results" class="card hidden" aria-live="polite">
-      <h2>Result</h2>
-      <p id="summary" class="summary"></p>
-      <p id="note" class="muted" aria-hidden="true"></p>
+  <!-- To level -->
 
-      <details id="detailsBlock">
-        <summary id="detailsSummary">Show per-level breakdown</summary>
-        <ul id="breakdown" class="breakdown" aria-label="Per-level breakdown"></ul>
-      </details>
+  <div class="row" id="toLevelRow">
+    <label for="targetLevel">Target Level</label>
+    <input id="targetLevel" type="number" min="1" />
+  </div>
 
-      <div class="result-actions">
-        <button id="topBtn" type="button" class="secondary">Back to top</button>
-      </div>
-    </section>
+  <!-- By levels -->
 
-    <footer class="muted">
-      Credit
-      <ul>
-        <li>GitHub's built-in AI copilot.</li>
-        <li>rivuletrainworld on Discord for the creation of Tank Game's up and coming fandom page, where I was able to obtain a list of levels and their corresponding XP found <a href="https://tankgame7x3.fandom.com/wiki/Leveling_and_shapes">here</a></li>
-        <li>This is the original website, created by me, cool_dude2022, on 1/18/2026.</li>
-        <li>© 2026 cool_dude2022. All rights reserved.</li>
-      </ul>
-    </footer>
-  </main>
+  <div class="row hidden" id="byLevelsRow">
+    <label for="levelsUp">Levels to Gain</label>
+    <input id="levelsUp" type="number" min="1" />
+  </div>
 
-  <script src="script.js"></script>
+  <!-- By XP -->
+
+  <div class="row hidden" id="byXpRow">
+    <label for="xpAmount">XP Amount</label>
+    <input id="xpAmount" type="number" min="0" />
+  </div>
+
+  <!-- By Money -->
+
+  <div class="row hidden" id="byMoneyRow">
+    <label for="moneyAmount">Money Amount</label>
+    <input id="moneyAmount" type="number" min="0" />
+  </div>
+
+  <hr />
+
+  <!-- Cost & tax -->
+
+  <div class="row">
+    <label for="pricePerMillion">Price per 1,000,000 XP</label>
+    <input id="pricePerMillion" type="number" min="0" value="20000" />
+  </div>
+
+  <div class="row">
+    <label for="taxPercent">Tax Percentage (%)</label>
+    <input id="taxPercent" type="number" min="0" value="0" />
+    <div style="font-size:0.85rem; color:#555;">Example: 25% death tax</div>
+  </div>
+
+<button type="submit">Calculate</button> <button type="button" id="resetBtn">Reset</button>
+
+</form>
+
+<!-- Results -->
+
+<div id="results" class="hidden">
+  <p id="summary" class="summary"></p>
+  <p id="note"></p>
+  <p id="costSummary" class="summary"></p>
+</div>
+
+<script>
+// XP Calculator with Money Mode + Tax
+
+document.addEventListener('DOMContentLoaded', () => {
+  const xpForm = document.getElementById('xpForm');
+
+  const currentLevelInput = document.getElementById('currentLevel');
+  const targetLevelInput = document.getElementById('targetLevel');
+  const levelsUpInput = document.getElementById('levelsUp');
+  const xpAmountInput = document.getElementById('xpAmount');
+  const moneyAmountInput = document.getElementById('moneyAmount');
+
+  const pricePerMillionInput = document.getElementById('pricePerMillion');
+  const taxPercentInput = document.getElementById('taxPercent');
+
+  const modeTo = document.getElementById('modeTo');
+  const modeBy = document.getElementById('modeBy');
+  const modeXp = document.getElementById('modeXp');
+  const modeMoney = document.getElementById('modeMoney');
+
+  const toLevelRow = document.getElementById('toLevelRow');
+  const byLevelsRow = document.getElementById('byLevelsRow');
+  const byXpRow = document.getElementById('byXpRow');
+  const byMoneyRow = document.getElementById('byMoneyRow');
+
+  const results = document.getElementById('results');
+  const summary = document.getElementById('summary');
+  const note = document.getElementById('note');
+  const costSummary = document.getElementById('costSummary');
+  const resetBtn = document.getElementById('resetBtn');
+
+  const A = 3.44883;
+  const P = 1.70006;
+  const CLOSED_P = P + 1;
+
+  const perLevelXp = l => A * Math.pow(l, P);
+  const closedForm = (l1, l2) => A * (Math.pow(l2, CLOSED_P) - Math.pow(l1, CLOSED_P)) / CLOSED_P;
+
+  function levelAfterAddingXp(current, xp) {
+    const base = Math.pow(current, CLOSED_P);
+    const added = (xp * CLOSED_P) / A;
+    return Math.pow(base + added, 1 / CLOSED_P);
+  }
+
+  function updateModeUI() {
+    toLevelRow.classList.toggle('hidden', !modeTo.checked);
+    byLevelsRow.classList.toggle('hidden', !modeBy.checked);
+    byXpRow.classList.toggle('hidden', !modeXp.checked);
+    byMoneyRow.classList.toggle('hidden', !modeMoney.checked);
+  }
+
+  [modeTo, modeBy, modeXp, modeMoney].forEach(m => m.addEventListener('change', updateModeUI));
+  updateModeUI();
+
+  function showCost(xp) {
+    const price = Number(pricePerMillionInput.value) || 20000;
+    const tax = Number(taxPercentInput.value) || 0;
+
+    const base = (xp / 1_000_000) * price;
+    const taxAmount = base * (tax / 100);
+    const total = base + taxAmount;
+
+    costSummary.textContent = `Base cost: ${base.toLocaleString()} | Tax (${tax}%): ${taxAmount.toLocaleString()} | Total: ${total.toLocaleString()}`;
+  }
+
+  xpForm.addEventListener('submit', e => {
+    e.preventDefault();
+
+    const current = Math.max(1, Number(currentLevelInput.value) || 1);
+    let xp = 0;
+
+    if (modeTo.checked) {
+      const target = Number(targetLevelInput.value);
+      xp = closedForm(current, target);
+      summary.textContent = `XP needed to reach level ${target}: ${Math.round(xp).toLocaleString()}`;
+    }
+
+    if (modeBy.checked) {
+      const target = current + Number(levelsUpInput.value);
+      xp = closedForm(current, target);
+      summary.textContent = `XP needed to gain ${levelsUpInput.value} levels: ${Math.round(xp).toLocaleString()}`;
+    }
+
+    if (modeXp.checked) {
+      xp = Number(xpAmountInput.value) || 0;
+      const finalLevel = Math.floor(levelAfterAddingXp(current, xp));
+      summary.textContent = `With ${xp.toLocaleString()} XP, you reach level ${finalLevel}`;
+    }
+
+    if (modeMoney.checked) {
+      const money = Number(moneyAmountInput.value) || 0;
+      const price = Number(pricePerMillionInput.value) || 20000;
+      const tax = Number(taxPercentInput.value) || 0;
+
+      const effectivePrice = price * (1 + tax / 100);
+      xp = (money / effectivePrice) * 1_000_000;
+
+      const finalLevel = Math.floor(levelAfterAddingXp(current, xp));
+      summary.textContent = `With ${money.toLocaleString()} money, you can reach level ${finalLevel}`;
+      note.textContent = `XP purchased after tax: ${Math.round(xp).toLocaleString()}`;
+    }
+
+    showCost(xp);
+    results.classList.remove('hidden');
+  });
+
+  resetBtn.addEventListener('click', () => {
+    xpForm.reset();
+    updateModeUI();
+    results.classList.add('hidden');
+  });
+});
+</script>
+
 </body>
 </html>
