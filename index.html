@@ -1,19 +1,57 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>XP Calculator</title>
+
+  <!-- INLINE CSS (GitHub Pages safe) -->
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    .row { margin-bottom: 12px; }
-    label { display: block; font-weight: bold; margin-bottom: 4px; }
-    input { padding: 6px; width: 100%; max-width: 320px; }
-    .hidden { display: none; }
-    .summary { margin-top: 12px; font-weight: bold; }
-    button { padding: 8px 14px; margin-top: 10px; }
-    hr { margin: 20px 0; }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f6f6f6;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    .row {
+      margin-bottom: 12px;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    input {
+      padding: 6px;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .summary {
+      margin-top: 12px;
+      font-weight: bold;
+    }
+
+    button {
+      padding: 8px 14px;
+      margin-top: 10px;
+      margin-right: 6px;
+      cursor: pointer;
+    }
+
+    hr {
+      margin: 20px 0;
+    }
   </style>
 </head>
 <body>
@@ -22,70 +60,53 @@
 
 <form id="xpForm">
 
-  <!-- Mode selection -->
-
   <div class="row">
-    <label><input type="radio" name="mode" id="modeTo" checked /> To Level</label>
-    <label><input type="radio" name="mode" id="modeBy" /> By Levels</label>
-    <label><input type="radio" name="mode" id="modeXp" /> By XP</label>
-    <label><input type="radio" name="mode" id="modeMoney" /> By Money</label>
+    <label><input type="radio" name="mode" id="modeTo" checked> To Level</label>
+    <label><input type="radio" name="mode" id="modeBy"> By Levels</label>
+    <label><input type="radio" name="mode" id="modeXp"> By XP</label>
+    <label><input type="radio" name="mode" id="modeMoney"> By Money</label>
   </div>
-
-  <!-- Current level -->
 
   <div class="row">
     <label for="currentLevel">Current Level</label>
-    <input id="currentLevel" type="number" min="1" value="1" />
+    <input id="currentLevel" type="number" min="1" value="1">
   </div>
-
-  <!-- To level -->
 
   <div class="row" id="toLevelRow">
     <label for="targetLevel">Target Level</label>
-    <input id="targetLevel" type="number" min="1" />
+    <input id="targetLevel" type="number" min="1">
   </div>
-
-  <!-- By levels -->
 
   <div class="row hidden" id="byLevelsRow">
     <label for="levelsUp">Levels to Gain</label>
-    <input id="levelsUp" type="number" min="1" />
+    <input id="levelsUp" type="number" min="1">
   </div>
-
-  <!-- By XP -->
 
   <div class="row hidden" id="byXpRow">
     <label for="xpAmount">XP Amount</label>
-    <input id="xpAmount" type="number" min="0" />
+    <input id="xpAmount" type="number" min="0">
   </div>
-
-  <!-- By Money -->
 
   <div class="row hidden" id="byMoneyRow">
     <label for="moneyAmount">Money Amount</label>
-    <input id="moneyAmount" type="number" min="0" />
+    <input id="moneyAmount" type="number" min="0">
   </div>
 
-  <hr />
-
-  <!-- Cost & tax -->
+  <hr>
 
   <div class="row">
     <label for="pricePerMillion">Price per 1,000,000 XP</label>
-    <input id="pricePerMillion" type="number" min="0" value="20000" />
+    <input id="pricePerMillion" type="number" value="20000">
   </div>
 
   <div class="row">
     <label for="taxPercent">Tax Percentage (%)</label>
-    <input id="taxPercent" type="number" min="0" value="0" />
-    <div style="font-size:0.85rem; color:#555;">Example: 25% death tax</div>
+    <input id="taxPercent" type="number" value="0">
   </div>
 
-<button type="submit">Calculate</button> <button type="button" id="resetBtn">Reset</button>
-
+  <button type="submit">Calculate</button>
+  <button type="button" id="resetBtn">Reset</button>
 </form>
-
-<!-- Results -->
 
 <div id="results" class="hidden">
   <p id="summary" class="summary"></p>
@@ -93,119 +114,7 @@
   <p id="costSummary" class="summary"></p>
 </div>
 
-<script>
-// XP Calculator with Money Mode + Tax
-
-document.addEventListener('DOMContentLoaded', () => {
-  const xpForm = document.getElementById('xpForm');
-
-  const currentLevelInput = document.getElementById('currentLevel');
-  const targetLevelInput = document.getElementById('targetLevel');
-  const levelsUpInput = document.getElementById('levelsUp');
-  const xpAmountInput = document.getElementById('xpAmount');
-  const moneyAmountInput = document.getElementById('moneyAmount');
-
-  const pricePerMillionInput = document.getElementById('pricePerMillion');
-  const taxPercentInput = document.getElementById('taxPercent');
-
-  const modeTo = document.getElementById('modeTo');
-  const modeBy = document.getElementById('modeBy');
-  const modeXp = document.getElementById('modeXp');
-  const modeMoney = document.getElementById('modeMoney');
-
-  const toLevelRow = document.getElementById('toLevelRow');
-  const byLevelsRow = document.getElementById('byLevelsRow');
-  const byXpRow = document.getElementById('byXpRow');
-  const byMoneyRow = document.getElementById('byMoneyRow');
-
-  const results = document.getElementById('results');
-  const summary = document.getElementById('summary');
-  const note = document.getElementById('note');
-  const costSummary = document.getElementById('costSummary');
-  const resetBtn = document.getElementById('resetBtn');
-
-  const A = 3.44883;
-  const P = 1.70006;
-  const CLOSED_P = P + 1;
-
-  const perLevelXp = l => A * Math.pow(l, P);
-  const closedForm = (l1, l2) => A * (Math.pow(l2, CLOSED_P) - Math.pow(l1, CLOSED_P)) / CLOSED_P;
-
-  function levelAfterAddingXp(current, xp) {
-    const base = Math.pow(current, CLOSED_P);
-    const added = (xp * CLOSED_P) / A;
-    return Math.pow(base + added, 1 / CLOSED_P);
-  }
-
-  function updateModeUI() {
-    toLevelRow.classList.toggle('hidden', !modeTo.checked);
-    byLevelsRow.classList.toggle('hidden', !modeBy.checked);
-    byXpRow.classList.toggle('hidden', !modeXp.checked);
-    byMoneyRow.classList.toggle('hidden', !modeMoney.checked);
-  }
-
-  [modeTo, modeBy, modeXp, modeMoney].forEach(m => m.addEventListener('change', updateModeUI));
-  updateModeUI();
-
-  function showCost(xp) {
-    const price = Number(pricePerMillionInput.value) || 20000;
-    const tax = Number(taxPercentInput.value) || 0;
-
-    const base = (xp / 1_000_000) * price;
-    const taxAmount = base * (tax / 100);
-    const total = base + taxAmount;
-
-    costSummary.textContent = `Base cost: ${base.toLocaleString()} | Tax (${tax}%): ${taxAmount.toLocaleString()} | Total: ${total.toLocaleString()}`;
-  }
-
-  xpForm.addEventListener('submit', e => {
-    e.preventDefault();
-
-    const current = Math.max(1, Number(currentLevelInput.value) || 1);
-    let xp = 0;
-
-    if (modeTo.checked) {
-      const target = Number(targetLevelInput.value);
-      xp = closedForm(current, target);
-      summary.textContent = `XP needed to reach level ${target}: ${Math.round(xp).toLocaleString()}`;
-    }
-
-    if (modeBy.checked) {
-      const target = current + Number(levelsUpInput.value);
-      xp = closedForm(current, target);
-      summary.textContent = `XP needed to gain ${levelsUpInput.value} levels: ${Math.round(xp).toLocaleString()}`;
-    }
-
-    if (modeXp.checked) {
-      xp = Number(xpAmountInput.value) || 0;
-      const finalLevel = Math.floor(levelAfterAddingXp(current, xp));
-      summary.textContent = `With ${xp.toLocaleString()} XP, you reach level ${finalLevel}`;
-    }
-
-    if (modeMoney.checked) {
-      const money = Number(moneyAmountInput.value) || 0;
-      const price = Number(pricePerMillionInput.value) || 20000;
-      const tax = Number(taxPercentInput.value) || 0;
-
-      const effectivePrice = price * (1 + tax / 100);
-      xp = (money / effectivePrice) * 1_000_000;
-
-      const finalLevel = Math.floor(levelAfterAddingXp(current, xp));
-      summary.textContent = `With ${money.toLocaleString()} money, you can reach level ${finalLevel}`;
-      note.textContent = `XP purchased after tax: ${Math.round(xp).toLocaleString()}`;
-    }
-
-    showCost(xp);
-    results.classList.remove('hidden');
-  });
-
-  resetBtn.addEventListener('click', () => {
-    xpForm.reset();
-    updateModeUI();
-    results.classList.add('hidden');
-  });
-});
-</script>
-
+<!-- IMPORTANT: relative path -->
+<script src="./script.js"></script>
 </body>
 </html>
