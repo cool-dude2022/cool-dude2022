@@ -1,83 +1,77 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const xpForm = document.getElementById('xpForm');
-  const currentLevelInput = document.getElementById('currentLevel');
-  const targetLevelInput = document.getElementById('targetLevel');
-  const levelsUpInput = document.getElementById('levelsUp');
-  const xpAmountInput = document.getElementById('xpAmount');
-  const gemRateInput = document.getElementById('gemRate');
-
-  const modeTo = document.getElementById('modeTo');
-  const modeBy = document.getElementById('modeBy');
-  const modeXp = document.getElementById('modeXp');
-
-  const toLevelRow = document.getElementById('toLevelRow');
-  const byLevelsRow = document.getElementById('byLevelsRow');
-  const byXpRow = document.getElementById('byXpRow');
-
-  const results = document.getElementById('results');
-  const summary = document.getElementById('summary');
-  const costSummary = document.getElementById('costSummary');
-  const note = document.getElementById('note');
-  const breakdown = document.getElementById('breakdown');
-
   const A = 3.44883;
   const P = 1.70006;
-  const CLOSED_P = P + 1;
+  const CP = P + 1;
+
+  const $ = id => document.getElementById(id);
 
   function perLevelXp(l) {
     return A * Math.pow(l, P);
   }
 
   function closedForm(l1, l2) {
-    return A * (Math.pow(l2, CLOSED_P) - Math.pow(l1, CLOSED_P)) / CLOSED_P;
+    return A * (Math.pow(l2, CP) - Math.pow(l1, CP)) / CP;
   }
 
-  function show(el) { el.classList.remove('hidden'); }
-  function hide(el) { el.classList.add('hidden'); }
-
-  function updateModeUI() {
-    show(toLevelRow); hide(byLevelsRow); hide(byXpRow);
-    if (modeBy.checked) { hide(toLevelRow); show(byLevelsRow); }
-    if (modeXp.checked) { hide(toLevelRow); hide(byLevelsRow); show(byXpRow); }
+  function applyTax(xp, tax) {
+    const lost = xp * (tax / 100);
+    return { net: xp - lost, lost };
   }
 
-  modeTo.onchange = modeBy.onchange = modeXp.onchange = updateModeUI;
-  updateModeUI();
+  function xpFromGems(gems, rate) {
+    return (gems / rate) * 1000;
+  }
 
-  xpForm.addEventListener('submit', e => {
+  function updateMode() {
+    $('toLevelRow').classList.toggle('hidden', !$('modeTo').checked);
+    $('byLevelsRow').classList.toggle('hidden', !$('modeBy').checked);
+    $('byXpRow').classList.toggle('hidden', !$('modeXp').checked);
+  }
+
+  document.querySelectorAll('input[name="mode"]').forEach(r => r.onchange = updateMode);
+  updateMode();
+
+  $('xpForm').onsubmit = e => {
     e.preventDefault();
 
-    const current = Math.max(1, Number(currentLevelInput.value));
-    const gemRate = Math.max(0, Number(gemRateInput.value));
+    const current = Number($('currentLevel').value);
+    const gemRate = Number($('gemRate').value);
+    const gems = Number($('availableGems').value || 0);
+    const tax = Number($('xpTax').value);
 
-    let xpNeeded = 0;
+    let rawXp = 0;
     let target = current;
 
-    if (modeTo.checked) {
-      target = Math.max(current, Number(targetLevelInput.value));
-      xpNeeded = closedForm(current, target);
-      summary.textContent = `XP needed from level ${current} → ${target}: ${Math.round(xpNeeded).toLocaleString()} XP`;
-    } else if (modeBy.checked) {
-      target = current + Math.max(1, Number(levelsUpInput.value));
-      xpNeeded = closedForm(current, target);
-      summary.textContent = `XP needed to gain ${target - current} levels: ${Math.round(xpNeeded).toLocaleString()} XP`;
+    if ($('modeTo').checked) {
+      target = Number($('targetLevel').value);
+      rawXp = closedForm(current, target);
+    } else if ($('modeBy').checked) {
+      target = current + Number($('levelsUp').value);
+      rawXp = closedForm(current, target);
     } else {
-      xpNeeded = Math.max(0, Number(xpAmountInput.value));
-      summary.textContent = `XP being added: ${Math.round(xpNeeded).toLocaleString()} XP`;
+      rawXp = Number($('xpAmount').value);
     }
 
-    const thousands = xpNeeded / 1000;
-    const totalCost = thousands * gemRate;
-
-    costSummary.textContent = `Gem cost @ ${gemRate.toLocaleString()} per 1k XP: ${Math.round(totalCost).toLocaleString()} gems`;
-
-    breakdown.innerHTML = '';
-    for (let l = current; l < target && l - current < 100; l++) {
-      const li = document.createElement('li');
-      li.textContent = `Level ${l} → ${l + 1}: ${Math.round(perLevelXp(l)).toLocaleString()} XP`;
-      breakdown.appendChild(li);
+    if (gems > 0) {
+      rawXp = Math.min(rawXp, xpFromGems(gems, gemRate));
     }
 
-    show(results);
-  });
+    const taxed = applyTax(rawXp, tax);
+    const cost = (rawXp / 1000) * gemRate;
+
+    $('summary').textContent =
+      `Raw XP: ${Math.round(rawXp).toLocaleString()} XP → Net XP: ${Math.round(taxed.net).toLocaleString()} XP`;
+
+    $('cost').textContent =
+      `Gem cost: ${Math.round(cost).toLocaleString()} gems`;
+
+    $('tax').textContent =
+      `XP tax (${tax}%): -${Math.round(taxed.lost).toLocaleString()} XP`;
+
+    const progress = Math.min((taxed.net / perLevelXp(current)) * 100, 100);
+    $('progressFill').style.width = `${progress}%`;
+    $('progressText').textContent = `Progress to next level: ${Math.round(progress)}%`;
+
+    $('results').classList.remove('hidden');
+  };
 });
