@@ -1,70 +1,76 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8" />
   <title>XP Calculator</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <main class="container">
-    <h1>XP Calculator</h1>
+  <h1>XP Calculator</h1>
 
-    <form id="xpForm" class="card" autocomplete="off">
-      <div class="row">
-        <label>Current level</label>
-        <input id="currentLevel" type="number" min="1" value="30" required>
-      </div>
+  <form id="xpForm">
+    <div class="row">
+      <label>Current Level</label>
+      <input id="currentLevel" type="number" value="1" min="1" />
+    </div>
 
-      <div class="row toggle-row">
-        <label><input type="radio" name="mode" id="modeTo" checked> To level</label>
-        <label><input type="radio" name="mode" id="modeBy"> By levels</label>
-        <label><input type="radio" name="mode" id="modeXp"> By XP</label>
-        <label><input type="radio" name="mode" id="modeCost"> Cost to purchase</label>
-      </div>
+    <fieldset>
+      <legend>Mode</legend>
+      <label><input type="radio" name="mode" id="modeTo" checked /> To level</label>
+      <label><input type="radio" name="mode" id="modeBy" /> By levels</label>
+      <label><input type="radio" name="mode" id="modeXp" /> By XP</label>
+      <label><input type="radio" name="mode" id="modeCost" /> Cost to purchase</label>
+    </fieldset>
 
-      <div class="row" id="toLevelRow">
-        <label>Target level</label>
-        <input id="targetLevel" type="number" min="1" value="35">
-      </div>
+    <div class="row" id="toLevelRow">
+      <label>Target Level</label>
+      <input id="targetLevel" type="number" min="1" />
+    </div>
 
-      <div class="row hidden" id="byLevelsRow">
-        <label>Levels to gain</label>
-        <input id="levelsUp" type="number" min="1" value="5">
-      </div>
+    <div class="row hidden" id="byLevelsRow">
+      <label>Levels to gain</label>
+      <input id="levelsUp" type="number" min="1" />
+    </div>
 
-      <div class="row hidden" id="byXpRow">
-        <label>XP amount</label>
-        <input id="xpAmount" type="number" value="100000">
-      </div>
+    <div class="row hidden" id="byXpRow">
+      <label>XP amount</label>
+      <input id="xpAmount" type="number" min="0" />
+    </div>
 
-      <div class="row hidden" id="costRow">
-        <label>Available gems</label>
-        <input id="availableGems" type="number" min="0">
-      </div>
+    <!-- COST MODE -->
+    <div class="row hidden" id="costRow">
+      <label>Gems available</label>
+      <input id="gemsAvailable" type="number" min="0" />
+    </div>
 
-      <hr>
+    <div class="row hidden" id="costRateRow">
+      <label>Gems per 1k XP</label>
+      <input id="gemRate" type="number" min="1" value="20000" />
+    </div>
 
-      <div class="row">
-        <label>Gem cost per 1k XP</label>
-        <input id="gemRate" type="number" value="20000">
-      </div>
+    <div class="row hidden" id="taxRow">
+      <label>XP tax (%)</label>
+      <input id="xpTax" type="number" min="0" max="100" value="25" />
+    </div>
 
-      <div class="row">
-        <label>XP tax (%)</label>
-        <input id="xpTax" type="number" value="25" min="0" max="100">
-      </div>
-
+    <div class="actions">
       <button type="submit">Calculate</button>
-    </form>
+      <button type="reset" id="resetBtn">Reset</button>
+    </div>
+  </form>
 
-    <section id="results" class="card hidden">
-      <h2>Results</h2>
-      <p id="summary"></p>
-      <p id="costSummary"></p>
-      <p id="taxSummary"></p>
+  <section id="results" class="hidden">
+    <p id="summary"></p>
+    <p id="note" class="hidden"></p>
 
-      <div class="progress-wrapper">
-        <div class="progress-bar">
-          <div class="progress-fill" id="progressFill"></div>
-        </div>
+    <details id="detailsBlock">
+      <summary>XP breakdown</summary>
+      <ul id="breakdown"></ul>
+    </details>
+  </section>
+
+  <button id="topBtn">Back to top</button>
+
+  <script src="script.js"></script>
+</body>
+</html>
