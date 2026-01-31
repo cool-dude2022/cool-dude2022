@@ -1,25 +1,26 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>XP & Gem Calculator</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>XP Calculator</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <main class="container">
     <h1>XP Calculator</h1>
 
-    <form id="xpForm" class="card">
+    <form id="xpForm" class="card" autocomplete="off">
       <div class="row">
         <label>Current level</label>
         <input id="currentLevel" type="number" min="1" value="30" required>
       </div>
 
-      <div class="row toggle">
+      <div class="row toggle-row">
         <label><input type="radio" name="mode" id="modeTo" checked> To level</label>
         <label><input type="radio" name="mode" id="modeBy"> By levels</label>
         <label><input type="radio" name="mode" id="modeXp"> By XP</label>
+        <label><input type="radio" name="mode" id="modeCost"> Cost to purchase</label>
       </div>
 
       <div class="row" id="toLevelRow">
@@ -37,16 +38,16 @@
         <input id="xpAmount" type="number" value="100000">
       </div>
 
+      <div class="row hidden" id="costRow">
+        <label>Available gems</label>
+        <input id="availableGems" type="number" min="0">
+      </div>
+
       <hr>
 
       <div class="row">
-        <label>Gem cost per 1,000 XP</label>
+        <label>Gem cost per 1k XP</label>
         <input id="gemRate" type="number" value="20000">
-      </div>
-
-      <div class="row">
-        <label>Available gems (optional)</label>
-        <input id="availableGems" type="number" placeholder="e.g. 5000000">
       </div>
 
       <div class="row">
@@ -60,18 +61,10 @@
     <section id="results" class="card hidden">
       <h2>Results</h2>
       <p id="summary"></p>
-      <p id="cost"></p>
-      <p id="tax"></p>
+      <p id="costSummary"></p>
+      <p id="taxSummary"></p>
 
-      <div class="progress">
+      <div class="progress-wrapper">
         <div class="progress-bar">
           <div class="progress-fill" id="progressFill"></div>
         </div>
-        <p id="progressText" class="muted"></p>
-      </div>
-    </section>
-  </main>
-
-  <script src="script.js"></script>
-</body>
-</html>
